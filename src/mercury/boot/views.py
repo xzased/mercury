@@ -46,21 +46,40 @@ class BootView(MethodView):
         :param mac_address: Inventory object mac_address, default is None.
         :return: Boot file.
         """
-        if mac_address:
-            result = self.inventory_client.query(
-                {
-                    'interfaces.address': mac_address
-                }
-            )
-
-            try:
-                inventory = result['message']['items'][0]
-            except IndexError:
-                return abort(404)
-                
-            # Select boot file depending on inventory attributes
-            # if inventory and inventory.dmi.platform == 'Dell, Inc.':
-            #     return send_file(some_custom_dell_boot_menu)
+        # if mac_address:
+        #     result = self.inventory_client.query(
+        #         {
+        #             'interfaces.address': mac_address
+        #         }
+        #     )
+        #
+        #     try:
+        #         inventory = result['message']['items'][0]
+        #     except IndexError:
+        #         return abort(404)
+        #
+        #     Select boot file depending on inventory attributes
+        #     if inventory and inventory.dmi.platform == 'Dell, Inc.':
+        #         return send_file(some_custom_dell_boot_menu)
+        #
+        #     Select a boot file by mac address
+        #     file_name = os.path.join(configuration.file_upload_directory,
+        #                              '{}.txt'.format(mac_address))
+        #     if os.path.isfile(file_name):
+        #         return send_file(file_name)
+        #
+        #     Select a boot file by some yet-to-be-implemented rule module,
+        #     where a rule can be posted as:
+        #     {
+        #         "condition": {
+        #             "dmi.sys_vendor": "Dell, Inc.",
+        #             "origin.datacenter": "DFW",
+        #         },
+        #         "file": "/path/to/file",
+        #     }
+        #     file_name = get_file_from_rule(inventory)
+        #     if os.path.isfile(file_name):
+        #         return send_file(file_name)
 
         return send_file(configuration.default_boot_file)
 
@@ -86,7 +105,9 @@ class FileView(MethodView):
 
         for file_name in files:
             file_path = os.path.join(configuration.file_upload_directory,
+                                     path,
                                      file_name)
+            print(file_name)
             data = self._get_file_data(file_name, file_path)
             response.append(data)
 
